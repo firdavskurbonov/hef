@@ -23,7 +23,7 @@ def _find_data() -> str:
             return p
     raise SystemExit(
         "candidate_data/ not found. Place the supplied extracts in "
-        "solution/candidate_data/ (or beside the repo) and re-run."
+        "candidate_data/ at the repository root (or beside the repo) and re-run."
     )
 
 

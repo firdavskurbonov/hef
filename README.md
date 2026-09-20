@@ -11,8 +11,10 @@ settle; and lets an analyst trace any figure back to its source cell.
 ## Run it
 
 ```bash
-cd solution
+git clone https://github.com/firdavskurbonov/hef.git
+cd hef
 python -m pip install -r requirements.txt
+# copy the supplied candidate_data/ folder into hef/ (it is not in the repository)
 python run_pipeline.py          # builds warehouse.db from candidate_data/ (~20s)
 streamlit run app.py            # analyst interface
 python tests/test_pipeline.py   # 14 test groups
@@ -21,7 +23,8 @@ python tests/test_pipeline.py   # 14 test groups
 Python 3.10+ (verified on 3.13 with current pandas 3 / NumPy 2.5 /
 Streamlit 1.64). Storage is one SQLite file - no server. `run_pipeline.py`
 applies `schema.sql` to a fresh database each run, so there is no separate
-schema step, and it finds `candidate_data/` inside or beside the repo.
+schema step, and it finds `candidate_data/` inside the clone or beside it
+(`--data-dir <path>` for anywhere else).
 
 ## Results
 
@@ -167,11 +170,11 @@ text strictly as untrusted data.
 ## Layout
 
 ```
-solution/                    repository root
+hef/                         repository root (the clone)
   run_pipeline.py  app.py    entry points - what you run
   schema.sql                 data model (commented DDL)
   .streamlit/config.toml     interface theme (WHO blue; validated chart palette)
-  candidate_data/            the supplied extracts go here
+  candidate_data/            the supplied extracts go here (not in the repository)
   uploads/                   files loaded through the interface (not versioned)
   config/                    per-country behaviour - the interface writes here too
                              (sources, account_mapping, rules, fx_rates; references.yml
@@ -181,7 +184,6 @@ solution/                    repository root
                              wizard-guess and config-writer tests
   tools/                     dev tools, not part of the product:
                              profile_data.py (evidence behind the DQ findings)
-                             make_deck.py (regenerates the deck from live figures)
 ```
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the data flow and model rationale,
