@@ -1,0 +1,382 @@
+# Account mapping: country account code -> SHA function + SRHR theme.
+#
+# This is the PRIMARY classification layer. The account code is the most
+# reliable signal available: it is structured, it is assigned by the country's
+# own finance system, and it survives the description being blank, mixed-case,
+# in French, or carrying injected text. Country C has 27 records with no
+# description at all and every one of them still has a coaCode.
+#
+# Each entry carries an explicit confidence and, where relevant, a review flag.
+# Two deliberate outcomes are not SHA HC codes:
+#
+#   CAPITAL      Gross capital formation. SHA 2011 handles capital under HK,
+#                not under the HC functional classification, so forcing these
+#                into an HC bucket would overstate current health spending.
+#                Kept, labelled, and excluded from HC totals.
+#   ADMIN_INPUT  Salaries, fuel, stationery, travel booked as an economic input
+#                with no functional purpose attached. Genuinely ambiguous: in
+#                SHA these are distributed across functions using allocation
+#                keys the extract does not contain. Provisionally HC.7 at low
+#                confidence and flagged for review rather than silently counted.
+#
+# Confidence convention:
+#   0.95  purpose unambiguous from the account label
+#   0.80  purpose clear, boundary between two HC codes arguable
+#   0.40  input-type code, function not determinable from the data
+
+defaults:
+  unmapped_confidence: 0.0
+
+countries:
+
+  # ------------------------------------------------------------- Country A ---
+  CTA:
+    "2110101":
+      label: Basic salaries - permanent employees
+      outcome: ADMIN_INPUT
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.40
+      needs_review: true
+      note: Personnel cost with no functional split; needs an allocation key.
+    "2210201":
+      label: Communication supplies
+      outcome: ADMIN_INPUT
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.40
+      needs_review: true
+    "2210301":
+      label: Domestic travel
+      outcome: ADMIN_INPUT
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.40
+      needs_review: true
+    "2211101":
+      label: Medical drugs
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.NA
+      confidence: 0.95
+    "2211102":
+      label: Contraceptives and family planning commodities
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.FP
+      confidence: 0.95
+    "2211103":
+      label: Vaccines
+      outcome: CLASSIFIED
+      sha: HC.5.1            # commodity purchase; the programme is 2211305
+      srhr: SRHR.NA
+      confidence: 0.80
+      note: Vaccine as a medical good. Immunisation programme delivery is HC.6.2.
+    "2211105":
+      label: HIV test kits and ARVs
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.HIV
+      confidence: 0.95
+    "2211110":
+      label: Maternity supplies and delivery kits
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.MH
+      confidence: 0.95
+    "2211199":
+      label: General medical consumables
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.NA
+      confidence: 0.80
+    "2211201":
+      label: Laboratory reagents
+      outcome: CLASSIFIED
+      sha: HC.4
+      srhr: SRHR.NA
+      confidence: 0.95
+    "2211305":
+      label: Immunisation outreach
+      outcome: CLASSIFIED
+      sha: HC.6.2
+      srhr: SRHR.NA
+      confidence: 0.95
+    "2211306":
+      label: Antenatal outreach services
+      outcome: CLASSIFIED
+      sha: HC.6.4            # healthy condition monitoring
+      srhr: SRHR.MH
+      confidence: 0.80
+      note: ANC treated as healthy-condition monitoring rather than curative.
+    "2211308":
+      label: Youth SRH counselling services
+      outcome: CLASSIFIED
+      sha: HC.6.1
+      srhr: SRHR.AH
+      confidence: 0.95
+    "2211320":
+      label: Cervical cancer screening
+      outcome: CLASSIFIED
+      sha: HC.6.3
+      srhr: SRHR.RC
+      confidence: 0.95
+    "2211404":
+      label: SGBV survivor support services
+      outcome: CLASSIFIED
+      sha: HC.1.3
+      srhr: SRHR.SGBV
+      confidence: 0.80
+      note: Service delivery to survivors; boundary with HC.6.1 is arguable.
+    "2211407":
+      label: Cleaning and fumigation - health facilities
+      outcome: CLASSIFIED
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.80
+    "2211501":
+      label: Refined fuels
+      outcome: ADMIN_INPUT
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.40
+      needs_review: true
+    "2211511":
+      label: Printing and stationery
+      outcome: ADMIN_INPUT
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.40
+      needs_review: true
+    "3110101":
+      label: Construction of buildings - health facilities
+      outcome: CAPITAL
+      sha: null
+      srhr: SRHR.NA
+      confidence: 0.95
+      note: Gross capital formation (SHA HK), outside the HC classification.
+    "3110701":
+      label: Purchase of vehicles - ambulances
+      outcome: CAPITAL
+      sha: null
+      srhr: SRHR.NA
+      confidence: 0.95
+      note: Gross capital formation (SHA HK), outside the HC classification.
+
+  # ------------------------------------------------------------- Country B ---
+  CTB:
+    "610100":
+      label: Traitements et salaires - personnel permanent
+      outcome: ADMIN_INPUT
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.40
+      needs_review: true
+    "610200":
+      label: Frais de fonctionnement
+      outcome: ADMIN_INPUT
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.40
+      needs_review: true
+      note: Generic operating costs; purpose not determinable.
+    "611010":
+      label: Achat de medicaments essentiels
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.NA
+      confidence: 0.95
+    "611015":
+      label: Achat de contraceptifs et produits de planification familiale
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.FP
+      confidence: 0.95
+    "611020":
+      label: Achat de vaccins et intrants immunisation
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.NA
+      confidence: 0.80
+    "611025":
+      label: Kits de tests VIH et antiretroviraux
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.HIV
+      confidence: 0.95
+    "611030":
+      label: Kits obstetricaux et accouchement
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.MH
+      confidence: 0.95
+    "611040":
+      label: Reactifs et consommables de laboratoire
+      outcome: CLASSIFIED
+      sha: HC.4
+      srhr: SRHR.NA
+      confidence: 0.95
+    "612010":
+      label: Campagnes de sensibilisation - sante maternelle
+      outcome: CLASSIFIED
+      sha: HC.6.1
+      srhr: SRHR.MH
+      confidence: 0.95
+    "612015":
+      label: Campagnes de sensibilisation - VIH/SIDA
+      outcome: CLASSIFIED
+      sha: HC.6.1
+      srhr: SRHR.HIV
+      confidence: 0.95
+    "612020":
+      label: Depistage precoce du cancer du col
+      outcome: CLASSIFIED
+      sha: HC.6.3
+      srhr: SRHR.RC
+      confidence: 0.95
+    "612025":
+      label: Services de conseil SRH pour adolescents
+      outcome: CLASSIFIED
+      sha: HC.6.1
+      srhr: SRHR.AH
+      confidence: 0.95
+    "612030":
+      label: Appui aux victimes de VBG
+      outcome: CLASSIFIED
+      sha: HC.1.3
+      srhr: SRHR.SGBV
+      confidence: 0.80
+    "613010":
+      label: Nettoyage et hygiene - formations sanitaires
+      outcome: CLASSIFIED
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.80
+    "613020":
+      label: Carburants et lubrifiants
+      outcome: ADMIN_INPUT
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.40
+      needs_review: true
+    "613030":
+      label: Imprimerie et fournitures de bureau
+      outcome: ADMIN_INPUT
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.40
+      needs_review: true
+    "614010":
+      label: Construction et rehabilitation - centres de sante
+      outcome: CAPITAL
+      sha: null
+      srhr: SRHR.NA
+      confidence: 0.95
+    "614020":
+      label: Achat de vehicules - ambulances
+      outcome: CAPITAL
+      sha: null
+      srhr: SRHR.NA
+      confidence: 0.95
+
+  # ------------------------------------------------------------- Country C ---
+  CTC:
+    "2210101":
+      label: Regular staff salaries
+      outcome: ADMIN_INPUT
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.40
+      needs_review: true
+    "2210105":
+      label: Office supplies
+      outcome: ADMIN_INPUT
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.40
+      needs_review: true
+    "2211001":
+      label: Essential medicines
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.NA
+      confidence: 0.95
+    "2211005":
+      label: Contraceptives
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.FP
+      confidence: 0.95
+    "2211010":
+      label: Vaccines and cold chain supplies
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.NA
+      confidence: 0.80
+    "2211015":
+      label: HIV test kits and antiretrovirals
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.HIV
+      confidence: 0.95
+    "2211020":
+      label: Delivery kits and obstetric supplies
+      outcome: CLASSIFIED
+      sha: HC.5.1
+      srhr: SRHR.MH
+      confidence: 0.95
+    "2211050":
+      label: Laboratory reagents
+      outcome: CLASSIFIED
+      sha: HC.4
+      srhr: SRHR.NA
+      confidence: 0.95
+    "2212010":
+      label: Health promotion - youth SRH
+      outcome: CLASSIFIED
+      sha: HC.6.1
+      srhr: SRHR.AH
+      confidence: 0.95
+    "2212015":
+      label: Cervical cancer screening campaign
+      outcome: CLASSIFIED
+      sha: HC.6.3
+      srhr: SRHR.RC
+      confidence: 0.95
+    "2212020":
+      label: GBV survivor psycho-social support
+      outcome: CLASSIFIED
+      sha: HC.1.3
+      srhr: SRHR.SGBV
+      confidence: 0.80
+    "2212030":
+      label: ANC outreach - rural districts
+      outcome: CLASSIFIED
+      sha: HC.6.4
+      srhr: SRHR.MH
+      confidence: 0.80
+    "2213010":
+      label: Health facility cleaning contracts
+      outcome: CLASSIFIED
+      sha: HC.7
+      srhr: SRHR.NA
+      confidence: 0.80
+    "2213020":
+      label: Fuel and transport - health services
+      outcome: CLASSIFIED
+      sha: HC.4              # patient//health-service transport is ancillary
+      srhr: SRHR.NA
+      confidence: 0.80
+      note: Transport tied to health services; HC.4 rather than a generic input.
+    "2214010":
+      label: Construction of health posts
+      outcome: CAPITAL
+      sha: null
+      srhr: SRHR.NA
+      confidence: 0.95
+    "2214020":
+      label: Ambulance procurement
+      outcome: CAPITAL
+      sha: null
+      srhr: SRHR.NA
+      confidence: 0.95

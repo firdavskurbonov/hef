@@ -1,0 +1,35 @@
+# Currency conversion reference.
+#
+# IMPORTANT: no exchange rates were supplied with the assessment data. Country C
+# mixes RWF and USD in the same extract (2,292 RWF rows and 208 USD rows) with
+# no rate field, and the three countries report in three different currencies,
+# so cross-country totals are impossible without a rate assumption.
+#
+# Rather than hide that, the rates below are declared as an explicit,
+# overridable assumption. Every converted amount records which rate and which
+# rate_source produced it, so a reviewer can see that a figure rests on an
+# assumed rate and recompute it when authoritative rates are supplied.
+#
+# These are indicative period-average rates for FY2023/24, units of local
+# currency per 1 USD. They are plausible, not authoritative.
+#
+# In production this table would be replaced by the UN Operational Rates of
+# Exchange, applied per posting month rather than as a single annual average,
+# and loaded as a proper time-varying dimension (rate valid_from / valid_to).
+
+base_currency: USD
+rate_source: "assumed_reference_rate_FY2023_24"
+period: "FY2023/24 period average"
+authoritative: false
+
+rates:
+  USD: 1.0
+  KES: 145.0      # Country A
+  XOF: 605.0      # Country B (CFA franc, EUR-pegged)
+  RWF: 1250.0     # Country C
+
+notes: |
+  Replace with UN Operational Rates of Exchange before any figure is published.
+  Monthly rates matter here: the KES moved sharply during FY2023/24, so a single
+  annual average materially changes Country A's USD total. Any cross-country
+  comparison produced from this prototype should be read as indicative only.

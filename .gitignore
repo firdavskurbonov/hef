@@ -1,0 +1,29 @@
+# The warehouse is a build artefact - rebuild it with `python run_pipeline.py`.
+# Kept out of version control so the repo does not carry an 8 MB binary that
+# changes on every run.
+warehouse.db
+*.db
+*.db-journal
+*.sqlite
+
+# Files uploaded through the Ingest tab - country extracts are not versioned.
+uploads/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

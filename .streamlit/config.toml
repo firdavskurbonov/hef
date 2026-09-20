@@ -1,0 +1,54 @@
+# Streamlit theme for the analyst interface.
+#
+# WHO blue (#0093D5) leads. Data colours follow a validated visualisation
+# palette: the categorical order is fixed - a country keeps its colour whatever
+# else is on screen - and the first three slots (WHO blue, orange, violet)
+# clear every colour-vision-deficiency and contrast check together. The
+# sequential ramp is one hue, light to dark. Status colours are reserved for
+# severity and never reused for a series, and always travel with a label.
+#
+# No WHO emblem is used: this is a prototype prepared for WHO AFRO, not a WHO
+# product.
+
+[theme]
+base = "light"
+primaryColor = "#0093d5"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f2f7fb"
+textColor = "#1a2b3c"
+linkColor = "#006a9a"
+borderColor = "#d9e2ea"
+dataframeBorderColor = "#d9e2ea"
+dataframeHeaderBackgroundColor = "#f2f7fb"
+showWidgetBorder = true
+baseRadius = "0.5rem"
+buttonRadius = "0.5rem"
+headingFontWeights = [700, 650, 600]
+metricValueFontWeight = 650
+
+# status palette - reserved for severity, always paired with a label
+redColor = "#d03b3b"
+orangeColor = "#ec835a"
+yellowColor = "#fab219"
+greenColor = "#0ca30c"
+blueColor = "#0093d5"
+grayColor = "#8a8983"
+
+# categorical: fixed slot order (slots 1-3 validated all-pairs; 4+ adjacent)
+chartCategoricalColors = ["#0093d5", "#eb6834", "#4a3aa7", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#e34948"]
+# sequential: single WHO-blue hue, light -> dark
+chartSequentialColors = ["#d9eef9", "#b3ddf2", "#8cccec", "#66bbe5", "#33a9dd", "#0093d5", "#007fb8", "#006a9a", "#00557c", "#004060"]
+
+[theme.sidebar]
+backgroundColor = "#0b2e4f"
+secondaryBackgroundColor = "#123f6a"
+textColor = "#eaf2f8"
+primaryColor = "#66bbe5"
+linkColor = "#8cccec"
+borderColor = "#1f4f7a"
+
+[server]
+headless = true
+
+[client]
+toolbarMode = "minimal"      # no Deploy button on a demo screen

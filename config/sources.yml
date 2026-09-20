@@ -1,0 +1,114 @@
+# Per-country source definitions.
+#
+# Adding a country should be a configuration change, not a code change. Each
+# entry below tells the generic reader where the data starts, which column maps
+# to which canonical field, and which cleaning conventions apply. The only time
+# new code is required is when a genuinely new *shape* appears (e.g. the first
+# XML source, or a second level of nesting).
+
+countries:
+
+  # ---------------------------------------------------------------- Country A
+  CTA:
+    name: Country A
+    reader: csv
+    path: country_a_expenditure.csv
+    encoding: utf-8-sig
+    currency: KES                 # column is AMOUNT_KES; no per-row currency
+    language: en
+    source_system: "National IFMIS extract (CSV)"
+    fiscal_year: "FY2023/24"      # not present per row; inferred from date range
+    # Fiscal calendars differ by country: A and C run July-June, B runs
+    # October-September. The window is asserted here and checked on every row
+    # (DATE_OUT_OF_PERIOD) rather than read off the data, so a posting outside
+    # the period the extract claims to cover is a finding, not a surprise.
+    period: {start: "2023-07-01", end: "2024-06-30"}
+    field_map:
+      source_record_id: TXN_ID
+      txn_date: DATE
+      ministry_code: MINISTRY_CODE
+      ministry_name: MINISTRY_NAME
+      account_code: ACCOUNT_CODE
+      description: DESCRIPTION
+      supplier: VENDOR
+      amount: AMOUNT_KES
+      payment_method: PAYMENT_METHOD
+    conventions:
+      date_formats: ["%d/%m/%Y"]
+      # 44 values arrive as "29,998.63" (quoted, thousands separator)
+      decimal_separator: "."
+      thousands_separators: [","]
+      strip_suffixes: []
+
+  # ---------------------------------------------------------------- Country B
+  CTB:
+    name: Country B
+    reader: excel
+    path: country_b_depenses.xlsx
+    sheet: Depenses
+    # Rows 1-5 are a SIGFiP report banner, row 6 is blank, row 7 is the header.
+    header_row: 7
+    # Final row is a report total ("TOTAL", 49 626 000 570) - a control figure,
+    # not a transaction. Reconciled in the DQ step, never loaded as a fact.
+    total_row_marker: TOTAL
+    currency: XOF
+    language: fr
+    source_system: "SIGFiP extraction (Excel)"
+    fiscal_year: "FY2023/24"
+    period: {start: "2023-10-01", end: "2024-09-30"}   # October-September calendar
+    chart_of_accounts_sheet: Plan_comptable      # country-supplied chart of accounts
+    chart_of_accounts_code_column: code_budgetaire
+    chart_of_accounts_label_column: libelle
+    field_map:
+      source_record_id: id_transaction
+      txn_date: date_ecriture
+      ministry_code: ministere_code
+      ministry_name: ministere_nom
+      account_code: code_budgetaire
+      description: libelle
+      supplier: tiers
+      amount: montant_XOF
+    conventions:
+      date_formats: ["%d-%m-%Y"]
+      # French convention: 11548910,00 - and ~130 rows carry "3 246 565 FCFA"
+      decimal_separator: ","
+      thousands_separators: [" ", " ", ","]
+      strip_suffixes: ["FCFA", "XOF", "F CFA"]
+
+  # ---------------------------------------------------------------- Country C
+  CTC:
+    name: Country C
+    reader: json
+    path: country_c_expenditure.json
+    records_path: transactions     # metadata sits alongside, captured separately
+    metadata_path: metadata
+    # The source stamps its own extraction time. Nothing can be posted after
+    # it, so it is a hard upper bound on every posting date in the file.
+    metadata_extracted_at: extractedAt
+    period: {start: "2023-07-01", end: "2024-06-30"}
+    currency: RWF                  # default; each row may override via `currency`
+    language: en
+    source_system: "IFMIS extract (JSON)"
+    # Nested splits. Children are loaded for traceability but excluded from
+    # totals unless they reconcile with the parent - see harmonise.py.
+    child_path: subTransactions
+    child_field_map:
+      source_record_id: subId
+      description: description
+      amount: amount
+    field_map:
+      source_record_id: transactionId
+      txn_date: postingDate
+      fiscal_year: fiscalYear
+      ministry_code: ministryCode
+      ministry_name: ministryName
+      account_code: coaCode
+      description: description
+      supplier: supplier
+      amount: amount
+      currency: currency           # per-row: RWF or USD
+    conventions:
+      date_formats: ["%Y-%m-%d"]
+      decimal_separator: "."
+      thousands_separators: []
+      strip_suffixes: []

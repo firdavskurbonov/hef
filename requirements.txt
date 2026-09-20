@@ -1,0 +1,20 @@
+# Prototype dependencies - Python 3.10+
+#
+# Verified 2026-09-19 on Python 3.13.5 with the then-current releases:
+# pandas 3.0.6, numpy 2.5.3, pyarrow 25.0.1, streamlit 1.64.0, openpyxl 3.1.5,
+# PyYAML 6.0.3, rapidfuzz 3.14.6. The floors below are the oldest versions the
+# code is written against; a fresh `pip install -r requirements.txt` gets latest.
+
+pandas>=2.2
+numpy>=2.0
+pyarrow>=16.0          # Streamlit's dataframe transport; >=16 is the NumPy 2 compatible line
+openpyxl>=3.1          # Country B .xlsx reader
+PyYAML>=6.0            # declarative source / mapping configuration
+streamlit>=1.50        # analyst review interface (width="stretch", material icons)
+altair>=5.0            # charts in the interface (a Streamlit dependency, imported directly)
+rapidfuzz>=3.0         # fuzzy label matching in the classification fallback
+
+# Storage is SQLite via the Python standard library (sqlite3) - no dependency.
+
+# Development only - regenerates the submission deck, not needed to run the tool:
+# python-pptx>=1.0
