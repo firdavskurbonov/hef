@@ -54,6 +54,30 @@ def col_profile(df, name):
         )
 
 
+def text_anomalies(series, name, max_distinct=60):
+    """Cardinality, frequency and length of a text column.
+
+    A free-text column that behaves like a closed list is worth listing in
+    full: the values that appear once, or that are far longer than the rest,
+    are where anything unusual hides. Needs no knowledge of what the text says,
+    which is the point - it is the only check that catches text written to
+    mislead a human reader rather than a parser.
+    """
+    vals = series.dropna().astype(str)
+    counts = vals.value_counts()
+    print(f"\n[{name}]  {len(vals)} rows, {len(counts)} distinct")
+    if len(counts) > max_distinct:
+        print(f"  high cardinality - genuine free text; length "
+              f"median={int(vals.str.len().median())} max={int(vals.str.len().max())}")
+        return
+    lengths = counts.index.to_series().str.len()
+    typical = lengths.median()
+    print(f"  closed list - length median={int(typical)} max={int(lengths.max())}")
+    for value, n in counts.sort_values().items():
+        flag = "  <== OUTLIER" if len(value) > 2 * typical else ""
+        print(f"  {n:>5} x  len={len(value):>4}  {value[:88]!r}{flag}")
+
+
 # ----------------------------------------------------------------- Country A
 rule("COUNTRY A - country_a_expenditure.csv")
 a = pd.read_csv(os.path.join(DATA, "country_a_expenditure.csv"), dtype=str)
@@ -85,6 +109,10 @@ print(f"  MINISTRY_CODE values  : {dict(Counter(a['MINISTRY_CODE'].dropna()))}")
 print(f"  PAYMENT_METHOD values : {dict(Counter(a['PAYMENT_METHOD'].dropna()))}")
 print(f"  DESCRIPTION blank/na  : {int(a['DESCRIPTION'].isna().sum())}")
 
+rule("COUNTRY A - free-text anomaly scan")
+text_anomalies(a["DESCRIPTION"], "A DESCRIPTION")
+text_anomalies(a["VENDOR"], "A VENDOR")
+
 # ----------------------------------------------------------------- Country B
 rule("COUNTRY B - country_b_depenses.xlsx")
 wb = load_workbook(os.path.join(DATA, "country_b_depenses.xlsx"), data_only=True)
@@ -97,6 +125,17 @@ for sn in wb.sheetnames:
 
 b = pd.read_excel(os.path.join(DATA, "country_b_depenses.xlsx"), sheet_name="Depenses", dtype=str)
 col_profile(b, "B Depenses raw")
+
+# The check that surfaced the injected instructions. libelle is effectively the
+# chart-of-accounts label, so it behaves as a closed list - and four values
+# appear exactly once, several times longer than any other.
+rule("COUNTRY B - free-text anomaly scan")
+_bh = pd.read_excel(os.path.join(DATA, "country_b_depenses.xlsx"),
+                    sheet_name="Depenses", dtype=str, header=6)
+_bh = _bh[_bh.iloc[:, 0].astype(str).str.upper() != "TOTAL"]      # drop the printed total
+for _c in _bh.columns:
+    if re.search(r"libell|descr", str(_c), re.I):
+        text_anomalies(_bh[_c], f"B {_c}")
 chart_b = pd.read_excel(os.path.join(DATA, "country_b_depenses.xlsx"), sheet_name="Plan_comptable", dtype=str)
 col_profile(chart_b, "B Plan_comptable")
 print("\nPlan_comptable full contents:")
@@ -161,6 +200,10 @@ if nested:
 
 cf = pd.json_normalize(tx)
 col_profile(cf.drop(columns=[c for c in cf.columns if c == "subTransactions"], errors="ignore"), "C flattened")
+
+rule("COUNTRY C - free-text anomaly scan")
+if "description" in cf:
+    text_anomalies(cf["description"], "C description")
 
 for c in cf.columns:
     if c == "subTransactions":

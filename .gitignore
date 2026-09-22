@@ -9,6 +9,9 @@ warehouse.db
 # Files uploaded through the Ingest tab - country extracts are not versioned.
 uploads/
 
+# Jupyter
+.ipynb_checkpoints/
+
 # Python
 __pycache__/
 *.py[cod]

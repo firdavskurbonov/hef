@@ -183,7 +183,9 @@ hef/                         repository root (the clone)
   tests/                     parser, date, FX, classifier, injection, load/replace,
                              wizard-guess and config-writer tests
   tools/                     dev tools, not part of the product:
-                             profile_data.py (evidence behind the DQ findings)
+                             profile_data.ipynb (data profiling, section by section -
+                             the evidence behind the DQ findings)
+                             profile_data.py (the same profiling as one script)
 ```
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the data flow and model rationale,
