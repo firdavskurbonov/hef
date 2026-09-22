@@ -212,6 +212,12 @@ OUTCOME_COL_HELP = ("CLASSIFIED = mapped to a code; CAPITAL = capital formation 
 SEVERITY_HELP = ("ERROR = cannot be right as supplied; WARN = loaded under an assumption a reviewer "
                  "should know about; INFO = handled, recorded for completeness.")
 RULE_COL_HELP = "Data-quality rule identifier. The Data quality tab lists the rows behind each."
+# How a record is bucketed on the SHA axis, wherever the app groups or filters
+# by it. ADMIN_INPUT records carry a provisional code (HC.7), so COALESCE alone
+# would file them under HC.7 and hide the distinction the outcome column exists
+# to make - the Overview table and the Records filter must agree on this.
+SHA_BUCKET = ("CASE WHEN sha_outcome='ADMIN_INPUT' THEN 'ADMIN_INPUT'"
+              " ELSE COALESCE(sha_code, sha_outcome) END")
 COUNTRY_HELP = "Country code as used across the app and in config/sources.yml."
 RECORDS_HELP = "Countable records - nested sub-transactions counted once."
 USD_HELP = "USD at the assumed rates in config/fx_rates.yml - indicative."
@@ -446,7 +452,7 @@ with tab_over:
                 "that are deliberately not HC codes: CAPITAL and ADMIN_INPUT.",
                 "Bars show size at a glance; the table beneath gives the exact USD and record count.")
         sha = q("""SELECT CASE WHEN cl.outcome='ADMIN_INPUT' THEN 'ADMIN_INPUT'
-                               ELSE COALESCE(cl.code, cl.outcome) END AS sha,
+                               ELSE COALESCE(cl.code, cl.outcome) END AS sha,   -- same buckets as SHA_BUCKET
                           CASE WHEN cl.outcome='ADMIN_INPUT'
                                THEN 'Inputs with no determinable function (provisional HC.7)'
                                ELSE COALESCE(d.sha_description, cl.outcome) END AS description,
@@ -556,8 +562,8 @@ with tab_records:
     r1, r2, r3, r4 = st.columns(4)
     countries = ["All"] + q("SELECT country_code FROM dim_country ORDER BY 1")["country_code"].tolist()
     rc = r1.selectbox("Country", countries, key="rec_country")
-    sha_opts = ["All"] + q("""SELECT DISTINCT COALESCE(sha_code, sha_outcome) v FROM v_expenditure_classified
-                              ORDER BY 1""")["v"].tolist()
+    sha_opts = ["All"] + q(f"SELECT DISTINCT {SHA_BUCKET} v FROM v_expenditure_classified"
+                           " ORDER BY 1")["v"].tolist()
     rs = r2.selectbox("SHA function / outcome", sha_opts, key="rec_sha")
     srhr_opts = ["All"] + q("SELECT DISTINCT COALESCE(srhr_code, srhr_outcome) v FROM v_expenditure_classified ORDER BY 1")["v"].tolist()
     rr = r3.selectbox("SRHR theme", srhr_opts, key="rec_srhr")
@@ -573,7 +579,7 @@ with tab_records:
     if rc != "All":
         where.append("country_code=?"); params.append(rc)
     if rs != "All":
-        where.append("COALESCE(sha_code, sha_outcome)=?"); params.append(rs)
+        where.append(f"{SHA_BUCKET}=?"); params.append(rs)
     if rr != "All":
         where.append("COALESCE(srhr_code, srhr_outcome)=?"); params.append(rr)
     if rv == "Awaiting review":
